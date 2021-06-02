@@ -27,29 +27,20 @@
     var initMouseEvents = function (canvas) {
         var mouseEvents = {
             mouseX: 0,
-            mouseY: 0,
-            mouseOver: false
+            mouseY: 0
         };
 
-        canvas.addEventListener("mousemove", function (e) {
+        window.addEventListener("mousemove", function (e) {
             var bounds = e.target.getBoundingClientRect();
             mouseEvents.mouseX = e.clientX - bounds.left;
             mouseEvents.mouseY = e.clientY - bounds.top;
-        });
-
-        canvas.addEventListener("mouseover", function () {
-            mouseEvents.mouseOver = true;
-        });
-
-        canvas.addEventListener("mouseout", function () {
-            mouseEvents.mouseOver = false;
         });
 
         return mouseEvents;
     };
 
     {
-        var canvas = document.getElementById("game");
+        let canvas = document.getElementById("game");
         let mouseEvents = initMouseEvents(canvas);
         gameLoop(canvas, mouseEvents);
     }
