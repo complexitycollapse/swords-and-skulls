@@ -37,6 +37,7 @@
         return mouseEvents;
     };
 
+    // Create a render context.
     var renderer = function (canvas, width, height) {
         const pixelSize = 5;
         canvas.width = width * pixelSize;
@@ -54,52 +55,55 @@
             ctx.putImageData(imageData, x, y);
         };
 
-        return obj;
-    };
+        // Create a texture that can be rendered to this context.
+        obj.createTexture = function (width, height, pixelsArg) {
+            var pixels = pixelsArg || new Array(width * height).fill(0);
+            var imageData;
 
-    class Texture {
-        constructor(pixelSize, width, height) {
-            this.width = width;
-            this.height = height;
-            this.pixels = new Array(width * height);
-            this.pixels.fill(0);
-            this.pixelSize = pixelSize;
-        }
+            var tex = {};
 
-        toIndex(x, y) {
-            return y * this.width + x;
-        }
+            tex.buildImageData = function () {
+                const pS = obj.pixelSize;
+                var canvas = document.createElement("canvas");
+                canvas.height = height * pS;
+                canvas.width = width *pS;
+                var ctx = canvas.getContext("2d");
+                var x;
+                var y;
 
-        setPixel(x, y, c) {
-            this.pixels[this.toIndex(x, y)] = c;
-        }
-
-        drawPixels(ctx) {
-            var x;
-            var y;
-            const pS = this.pixelSize;
-
-            for (x = 0; x < this.width; x++) {
-                for (y = 0; y < this.height; y++) {
-                    let colour = this.pixels[this.toIndex(x, y)];
-                    if (colour !== 0)
-                    {
-                        ctx.fillStyle = "rgb(255, 0, 0, 255)";
-                        ctx.fillRect(x * pS, y * pS, pS, pS);
+                for (x = 0; x < width; x++) {
+                    for (y = 0; y < height; y++) {
+                        let colour = pixels[x + y * width];
+                        if (colour !== 0)
+                        {
+                            ctx.fillStyle = colour;
+                            ctx.fillRect(x * pS, y * pS, pS, pS);
+                        }
                     }
                 }
+                imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
-        };
 
-        buildImageData() {
-            var canvas = document.createElement("canvas");
-            canvas.height = this.height * this.pixelSize;
-            canvas.width = this.width * this.pixelSize;
-            var ctx = canvas.getContext("2d");
-            this.drawPixels(ctx);
-            return ctx.getImageData(0, 0, canvas.width, canvas.height);
+            tex.setPixel = function (x, y, c) {
+                pixels[x + width * y] = c;
+            }
+
+            tex.clearImageData = function () {
+                imageData = undefined;
+            }
+
+            tex.draw = function (x, y) {
+                if (imageData === undefined) {
+                    tex.buildImageData();
+                }
+                obj.drawLayer(imageData, x, y);
+            }
+
+            return tex;
         }
-    }
+
+        return obj;
+    };
 
     // The actual game goes in here
     var gameLogic = function (canvas, renderCtx) {
@@ -111,22 +115,23 @@
         var monster = {};
         var oldMain = oldGame(canvas, hero, monster);
 
-        var tex = new Texture(5, 50, 50);
+        var tex = renderCtx.createTexture(50, 50);
         var x;
         var y;
         for (x = 0; x < 50; ++x) {
             for (y = 0; y < 50; ++y) {
                 let i = y % 2;
                 if ((x + i) % 2 === 0) {
-                    tex.setPixel(x, y, "rgb(255, 0, 0, 255)");
+                    tex.setPixel(x, y, "rgb(255, 200, 0, 255)");
                 }
             }
         }
-        var id = tex.buildImageData();
+
+        tex.buildImageData();
 
         return function (delta, mouseEvents) {
             oldMain(delta, renderCtx.ctx, mouseEvents, hero, monster);
-            renderCtx.drawLayer(id, 10, 10);
+            tex.draw(10, 10);
         };
     };
 
