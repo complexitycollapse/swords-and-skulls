@@ -42,46 +42,64 @@
         canvas.width = width * pixelSize;
         canvas.height = height * pixelSize;
         var ctx = canvas.getContext("2d");
-        var pixels = new Array(width * height);
-        pixels.fill(0);
-
-        var i;
-        for(i = 0; i < pixels.length; i += 2) {
-            pixels[i] = 1;
-        }
 
         var obj = {
             ctx: ctx,
             width: width,
-            height: height
+            height: height,
+            pixelSize: pixelSize
         };
 
-        function pixel(c, x, y) {
-            ctx.fillStyle = c;
-            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+        obj.drawLayer = function (imageData, x, y) {
+            ctx.putImageData(imageData, x, y);
+        };
+
+        return obj;
+    };
+
+    class Texture {
+        constructor(pixelSize, width, height) {
+            this.width = width;
+            this.height = height;
+            this.pixels = new Array(width * height);
+            this.pixels.fill(0);
+            this.pixelSize = pixelSize;
         }
 
-        function toIndex(x, y) {
-            return y * width + x;
+        toIndex(x, y) {
+            return y * this.width + x;
         }
 
-        obj.drawPixels = function drawPixels() {
+        setPixel(x, y, c) {
+            this.pixels[this.toIndex(x, y)] = c;
+        }
+
+        drawPixels(ctx) {
             var x;
             var y;
+            const pS = this.pixelSize;
 
-            for (x = 0; x < width; x++) {
-                for (y = 0; y < height; y++) {
-                    let colour = pixels[toIndex(x, y)];
+            for (x = 0; x < this.width; x++) {
+                for (y = 0; y < this.height; y++) {
+                    let colour = this.pixels[this.toIndex(x, y)];
                     if (colour !== 0)
                     {
-                        pixel("rgb(255, 0, 0, 255)", x, y);
+                        ctx.fillStyle = "rgb(255, 0, 0, 255)";
+                        ctx.fillRect(x * pS, y * pS, pS, pS);
                     }
                 }
             }
         };
 
-        return obj;
-    };
+        buildImageData() {
+            var canvas = document.createElement("canvas");
+            canvas.height = this.height * this.pixelSize;
+            canvas.width = this.width * this.pixelSize;
+            var ctx = canvas.getContext("2d");
+            this.drawPixels(ctx);
+            return ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+    }
 
     // The actual game goes in here
     var gameLogic = function (canvas, renderCtx) {
@@ -93,9 +111,22 @@
         var monster = {};
         var oldMain = oldGame(canvas, hero, monster);
 
+        var tex = new Texture(5, 50, 50);
+        var x;
+        var y;
+        for (x = 0; x < 50; ++x) {
+            for (y = 0; y < 50; ++y) {
+                let i = y % 2;
+                if ((x + i) % 2 === 0) {
+                    tex.setPixel(x, y, "rgb(255, 0, 0, 255)");
+                }
+            }
+        }
+        var id = tex.buildImageData();
+
         return function (delta, mouseEvents) {
             oldMain(delta, renderCtx.ctx, mouseEvents, hero, monster);
-            renderCtx.drawPixels();
+            renderCtx.drawLayer(id, 10, 10);
         };
     };
 
