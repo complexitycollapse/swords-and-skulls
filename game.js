@@ -2,7 +2,7 @@
     var then;
 
     // The main loop of the game. Call to start.
-    var gameLoop = function (canvas, mouseEvents) {
+    var gameLoop = function (canvas, mouseEvents, gameLogic) {
         var ctx = canvas.getContext("2d");
 
         var requestAnimationFrame = (function () {
@@ -13,12 +13,11 @@
         function innerLoop() {
             var now = Date.now();
             var delta = (now - then) / 1000;
-            oldMain(delta, ctx);
+            gameLogic(delta, ctx, mouseEvents);
 
             then = now;
             requestAnimationFrame(innerLoop);
         }
-        var oldMain = oldGame(canvas);
         then = Date.now();
         innerLoop();
     };
@@ -39,9 +38,18 @@
         return mouseEvents;
     };
 
+    var gameLogic = function (canvas) {
+        var oldMain = oldGame(canvas);
+
+        return function (delta, ctx, mouseEvents) {
+            oldMain(delta, ctx, mouseEvents);
+        };
+    };
+
     {
         let canvas = document.getElementById("game");
         let mouseEvents = initMouseEvents(canvas);
-        gameLoop(canvas, mouseEvents);
+        let game = gameLogic(canvas);
+        gameLoop(canvas, mouseEvents, game);
     }
 }());
