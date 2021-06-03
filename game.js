@@ -56,7 +56,7 @@
         };
 
         // Create a texture that can be rendered to this context.
-        obj.createTexture = function (width, height, pixelsArg) {
+        obj.createTexture = function (width, height, palette, pixelsArg) {
             var pixels = pixelsArg || new Array(width * height).fill(0);
             var imageData;
 
@@ -73,12 +73,9 @@
 
                 for (x = 0; x < width; x++) {
                     for (y = 0; y < height; y++) {
-                        let colour = pixels[x + y * width];
-                        if (colour !== 0)
-                        {
-                            ctx.fillStyle = colour;
-                            ctx.fillRect(x * pS, y * pS, pS, pS);
-                        }
+                        let colour = palette[pixels[x + y * width]];
+                        ctx.fillStyle = colour;
+                        ctx.fillRect(x * pS, y * pS, pS, pS);
                     }
                 }
                 imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -115,14 +112,14 @@
         var monster = {};
         var oldMain = oldGame(canvas, hero, monster);
 
-        var tex = renderCtx.createTexture(50, 50);
+        var tex = renderCtx.createTexture(50, 50, ["rgba(0, 0, 0, 0)","rgba(255, 0, 0, 255)"]);
         var x;
         var y;
         for (x = 0; x < 50; ++x) {
             for (y = 0; y < 50; ++y) {
                 let i = y % 2;
                 if ((x + i) % 2 === 0) {
-                    tex.setPixel(x, y, "rgb(255, 200, 0, 255)");
+                    tex.setPixel(x, y, 1);
                 }
             }
         }
