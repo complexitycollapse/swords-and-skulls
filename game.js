@@ -51,49 +51,40 @@
             pixelSize: pixelSize
         };
 
-        obj.drawLayer = function (imageData, x, y) {
-            ctx.putImageData(imageData, x, y);
+        obj.drawLayer = function (image, x, y) {
+            ctx.drawImage(image, x, y);
         };
 
         // Create a texture that can be rendered to this context.
         obj.createTexture = function (width, height, palette, pixelsArg) {
-            var pixels = pixelsArg || new Array(width * height).fill(0);
-            var imageData;
-
             var tex = {};
-
-            tex.buildImageData = function () {
-                const pS = obj.pixelSize;
-                var canvas = document.createElement("canvas");
-                canvas.height = height * pS;
-                canvas.width = width *pS;
-                var ctx = canvas.getContext("2d");
-                var x;
-                var y;
-
-                for (x = 0; x < width; x++) {
-                    for (y = 0; y < height; y++) {
-                        let colour = palette[pixels[x + y * width]];
-                        ctx.fillStyle = colour;
-                        ctx.fillRect(x * pS, y * pS, pS, pS);
-                    }
-                }
-                imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            }
 
             tex.setPixel = function (x, y, c) {
                 pixels[x + width * y] = c;
+                let colour = palette[c];
+                ctx.fillStyle = colour;
+                ctx.fillRect(x * pS, y * pS, pS, pS);
             }
 
-            tex.clearImageData = function () {
-                imageData = undefined;
+            var pixels = pixelsArg || new Array(width * height).fill(0);
+
+            var canvas = document.createElement("canvas");
+            const pS = obj.pixelSize;
+            canvas.height = height * pS;
+            canvas.width = width *pS;
+
+            var ctx = canvas.getContext("2d");
+            var x;
+            var y;
+
+            for (x = 0; x < width; x++) {
+                for (y = 0; y < height; y++) {
+                    tex.setPixel(x, y, pixels[x + y * width]);
+                }
             }
 
             tex.draw = function (x, y) {
-                if (imageData === undefined) {
-                    tex.buildImageData();
-                }
-                obj.drawLayer(imageData, x, y);
+                obj.drawLayer(canvas, x, y);
             }
 
             return tex;
@@ -123,8 +114,6 @@
                 }
             }
         }
-
-        tex.buildImageData();
 
         return function (delta, mouseEvents) {
             oldMain(delta, renderCtx.ctx, mouseEvents, hero, monster);
