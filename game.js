@@ -1,9 +1,8 @@
-(function () {
-    var then;
+function gameFramework () {
 
     // The main loop of the game. Call to start.
-    var gameLoop = function (mouseEvents, gameLogic) {
-
+    function gameLoop (mouseEvents, gameLogic) {
+        var then;
         var requestAnimationFrame = (function () {
             var w = window;
             return w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
@@ -19,10 +18,11 @@
         }
         then = Date.now();
         innerLoop();
+        return innerLoop;
     };
 
     // Attach mouse event handlers
-    var initMouseEvents = function () {
+    function initMouseEvents () {
         var mouseEvents = {
             mouseX: 0,
             mouseY: 0
@@ -38,8 +38,7 @@
     };
 
     // Create a render context.
-    var renderer = function (canvas, width, height) {
-        const pixelSize = 5;
+    function renderer (canvas, pixelSize, width, height) {
         canvas.width = width * pixelSize;
         canvas.height = height * pixelSize;
         var ctx = canvas.getContext("2d");
@@ -93,15 +92,19 @@
         return obj;
     };
 
+    return { gameLoop: gameLoop, renderer: renderer, initMouseEvents: initMouseEvents };
+};
+
+function startGame ()
+{
     // The actual game goes in here
-    var gameLogic = function (canvas, renderCtx) {
+    function gameLogic (renderCtx) {
         var hero = {
             speed: 256,
             x: 256,
             y: 240
         };
         var monster = {};
-        var oldMain = oldGame(canvas, hero, monster);
 
         var tex = renderCtx.createTexture(50, 50, ["rgba(0, 0, 0, 0)","rgba(255, 0, 0, 255)"]);
         var x;
@@ -116,16 +119,14 @@
         }
 
         return function (delta, mouseEvents) {
-            oldMain(delta, renderCtx.ctx, mouseEvents, hero, monster);
             tex.draw(10, 10);
         };
     };
 
-    {
-        let canvas = document.getElementById("game");
-        let mouseEvents = initMouseEvents();
-        let renderContext = renderer(canvas, 100, 100);
-        let game = gameLogic(canvas, renderContext);
-        gameLoop(mouseEvents, game);
-    }
-}());
+    let framework = gameFramework();
+    let canvas = document.getElementById("game");
+    let mouseEvents = framework.initMouseEvents();
+    let renderContext = framework.renderer(canvas, 5, 100, 100);
+    let game = gameLogic(renderContext);
+    return framework.gameLoop(mouseEvents, game);
+}
