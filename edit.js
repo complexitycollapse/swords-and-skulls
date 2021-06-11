@@ -6,6 +6,7 @@ function startEditor ()
 
     let palette = [
         "rgba(0, 0, 0, 0)",
+        "rgba(255, 255, 255, 255)",
         "rgba(0, 0, 255, 255)",
         "rgba(0, 255, 0, 255)",
         "rgba(255, 0, 0, 255)",
@@ -15,6 +16,7 @@ function startEditor ()
         "rgba(127, 0, 0, 255)"];
     
     let currentColour = 0;
+    let backgroundColour = 1;
     let image = new Array(height * width).fill(currentColour);
     
     let colourPicker = document.getElementById("colour-picker");
@@ -40,28 +42,39 @@ function startEditor ()
         mouseX = Math.floor(x / 20) - 1;
         mouseY = Math.floor(y / 20) - 1;
         if (bigCanvas.active) {
-            draw();
+            drawPixel();
         }
     });
 
     let mouseX = 0;
     let mouseY = 0;
 
-    function draw() {
+    function drawPixel() {
         image[mouseY * width + mouseX] = currentColour;
         bigImage.setPixel(mouseX, mouseY, currentColour);
         smallImage.setPixel(mouseX, mouseY, currentColour);
+        redraw();
+    }
+
+    function redraw() {
+        bigContext.fill(palette[backgroundColour]);
+        smallContext.fill(palette[backgroundColour]);
         bigImage.draw(0, 0);
         smallImage.draw(0, 0);
     }
 
     bigCanvas.addEventListener("mousedown", e => {
         bigCanvas.active = true;
-        draw();
+        drawPixel();
       });
     bigCanvas.addEventListener("mouseup", e => {
         bigCanvas.active = false;
       });
+
+    document.getElementById("setBackground").addEventListener("click", e => {
+        backgroundColour = currentColour;
+        redraw();
+    });
 
     window.handlers = { onColourClick: onColourClick };
 }

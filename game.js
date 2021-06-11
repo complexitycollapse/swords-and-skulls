@@ -63,7 +63,7 @@ function gameFramework () {
                 let colour = palette[c];
                 ctx.fillStyle = colour;
                 ctx.fillRect(x * pS, y * pS, pS, pS);
-            }
+            };
 
             var pixels = pixelsArg || new Array(width * height).fill(0);
 
@@ -84,10 +84,15 @@ function gameFramework () {
 
             tex.draw = function (x, y) {
                 obj.drawLayer(canvas, x, y);
-            }
+            };
 
             return tex;
         }
+
+        obj.fill = function (c) {
+            ctx.fillStyle = c;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        };
 
         return obj;
     };
