@@ -39,8 +39,8 @@ function startEditor ()
         var rect = bigCanvas.getBoundingClientRect();
         var x = e.clientX - rect.left;
         var y = e.clientY - rect.top;
-        mouseX = Math.floor(x / 20) - 1;
-        mouseY = Math.floor(y / 20) - 1;
+        mouseX = Math.floor(x / 20);
+        mouseY = Math.floor(y / 20);
         if (bigCanvas.active) {
             drawPixel();
         }
