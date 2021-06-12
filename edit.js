@@ -76,5 +76,11 @@ function startEditor ()
         redraw();
     });
 
+    document.getElementById("clear").addEventListener("click", e => {
+        bigImage.clear();
+        smallImage.clear();
+        redraw();
+    });
+
     window.handlers = { onColourClick: onColourClick };
 }

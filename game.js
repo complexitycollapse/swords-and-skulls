@@ -57,6 +57,13 @@ function gameFramework () {
         // Create a texture that can be rendered to this context.
         obj.createTexture = function (width, height, palette, pixelsArg) {
             var tex = {};
+            var pixels = pixelsArg || new Array(width * height);
+            var canvas = document.createElement("canvas");
+            const pS = obj.pixelSize;
+            canvas.height = height * pS;
+            canvas.width = width *pS;
+            var ctx = canvas.getContext("2d");
+
 
             tex.setPixel = function (x, y, c) {
                 pixels[x + width * y] = c;
@@ -65,14 +72,13 @@ function gameFramework () {
                 ctx.fillRect(x * pS, y * pS, pS, pS);
             };
 
-            var pixels = pixelsArg || new Array(width * height).fill(0);
+            tex.clear = function () {
+                pixels.fill(0);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
 
-            var canvas = document.createElement("canvas");
-            const pS = obj.pixelSize;
-            canvas.height = height * pS;
-            canvas.width = width *pS;
+            tex.clear();
 
-            var ctx = canvas.getContext("2d");
             var x;
             var y;
 
