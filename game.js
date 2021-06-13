@@ -57,7 +57,7 @@ function gameFramework () {
         // Create a texture that can be rendered to this context.
         obj.createTexture = function (width, height, palette, pixelsArg) {
             var tex = {};
-            var pixels = pixelsArg || new Array(width * height);
+            var pixels = pixelsArg || new Array(width * height).fill(0);
             var canvas = document.createElement("canvas");
             const pS = obj.pixelSize;
             canvas.height = height * pS;
@@ -77,13 +77,8 @@ function gameFramework () {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
 
-            tex.clear();
-
-            var x;
-            var y;
-
-            for (x = 0; x < width; x++) {
-                for (y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
                     tex.setPixel(x, y, pixels[x + y * width]);
                 }
             }

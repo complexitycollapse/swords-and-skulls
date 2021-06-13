@@ -17,23 +17,39 @@ function startEditor ()
     
     let currentColour = 0;
     let backgroundColour = 1;
-    let image = new Array(height * width).fill(currentColour);
+    let imagePixels = new Array(height * width).fill(currentColour);
     
     let colourPicker = document.getElementById("colour-picker");
     let bigCanvas = document.getElementById("big");
     let smallCanvas = document.getElementById("small");
+    let heightInput = document.getElementById("height");
+    let widthInput = document.getElementById("width");
+
+    heightInput.value = height;
+    widthInput.value = width;
+
     {
         let i = 0;
         colourPicker.innerHTML = palette.map(x => `<span class="colour" style="background-color: ${x}" onclick="window.handlers.onColourClick(${i++});"></span>`).join("\n");
     }
+
     function onColourClick(colour) {
             currentColour = colour;
         };
-    let bigContext = framework.renderer(bigCanvas, 20, height, width);
-    let smallContext = framework.renderer(smallCanvas, 5, height, width);
 
-    let bigImage = bigContext.createTexture(height, width, palette, image);
-    let smallImage = smallContext.createTexture(height, width, palette, image);
+    let bigContext;
+    let smallContext;
+    let bigImage;
+    let smallImage;
+
+    function createContextsAndImages() {
+        bigContext = framework.renderer(bigCanvas, 20, width, height);
+        smallContext = framework.renderer(smallCanvas, 5, width, height);
+        bigImage = bigContext.createTexture(width, height, palette, imagePixels);
+        smallImage = smallContext.createTexture(width, height, palette, imagePixels);
+    }
+
+    createContextsAndImages();
 
     bigCanvas.addEventListener("mousemove", e => {
         var rect = bigCanvas.getBoundingClientRect();
@@ -50,7 +66,7 @@ function startEditor ()
     let mouseY = 0;
 
     function drawPixel() {
-        image[mouseY * width + mouseX] = currentColour;
+        imagePixels[mouseY * width + mouseX] = currentColour;
         bigImage.setPixel(mouseX, mouseY, currentColour);
         smallImage.setPixel(mouseX, mouseY, currentColour);
         redraw();
@@ -79,6 +95,41 @@ function startEditor ()
     document.getElementById("clear").addEventListener("click", e => {
         bigImage.clear();
         smallImage.clear();
+        redraw();
+    });
+
+    heightInput.addEventListener("change", e => {
+        let newHeight = heightInput.value;
+        let newArr = new Array(width*newHeight).fill(0);
+
+        for (let x = 0; x < width; ++x) {
+            for (let y = 0; y < Math.min(height, newHeight); ++y) {
+                let coord = y*width + x;
+                newArr[coord] = imagePixels[coord];
+            }
+        }
+
+        imagePixels = newArr;
+        height = newHeight;
+
+        createContextsAndImages();
+        redraw();
+    });
+
+    widthInput.addEventListener("change", e => {
+        let newWidth = widthInput.value;
+        let newArr = new Array(height*newWidth).fill(0);
+
+        for (let x = 0; x < Math.min(width, newWidth); ++x) {
+            for (let y = 0; y < height; ++y) {
+                newArr[y*newWidth + x] = imagePixels[y*width + x];
+            }
+        }
+
+        imagePixels = newArr;
+        width = newWidth;
+
+        createContextsAndImages();
         redraw();
     });
 
