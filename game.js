@@ -55,9 +55,9 @@ function gameFramework () {
         };
 
         // Create a texture that can be rendered to this context.
-        obj.createTexture = function (width, height, palette, pixelsArg) {
+        obj.createTexture = function ({ width, height, palette, pixels }) {
             var tex = {};
-            var pixels = pixelsArg || new Array(width * height).fill(0);
+            pixels = pixels || new Array(width * height).fill(0);
             var canvas = document.createElement("canvas");
             const pS = obj.pixelSize;
             canvas.height = height * pS;
@@ -112,7 +112,7 @@ function startGame ()
         };
         var monster = {};
 
-        var tex = renderCtx.createTexture(50, 50, ["rgba(0, 0, 0, 0)","rgba(255, 0, 0, 255)"]);
+        var tex = renderCtx.createTexture({ width: 50, height: 50, palette: ["rgba(0, 0, 0, 0)","rgba(255, 0, 0, 255)"] });
         var x;
         var y;
         for (x = 0; x < 50; ++x) {
