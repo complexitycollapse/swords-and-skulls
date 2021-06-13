@@ -69,6 +69,7 @@ function gameFramework () {
                 pixels[x + width * y] = c;
                 let colour = palette[c];
                 ctx.fillStyle = colour;
+                ctx.clearRect(x * pS, y * pS, pS, pS);
                 ctx.fillRect(x * pS, y * pS, pS, pS);
             };
 
