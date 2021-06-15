@@ -2,20 +2,21 @@ function startEditor ()
 {
     let currentColour = 0;
     let backgroundColour = 1;
+    let currentColourInput;
 
     let sprite = {
         height: 50,
         width: 50,
         palette: [
             "rgba(0, 0, 0, 0)",
-            "rgba(255, 255, 255, 255)",
-            "rgba(0, 0, 255, 255)",
-            "rgba(0, 255, 0, 255)",
-            "rgba(255, 0, 0, 255)",
-            "rgba(200, 200, 200, 255)",
-            "rgba(0, 0, 127, 255)",
-            "rgba(0, 127, 0, 255)",
-            "rgba(127, 0, 0, 255)"],
+            "white",
+            "black",
+            "red",
+            "green",
+            "blue",
+            "darkred",
+            "darkgreen",
+            "darkblue"],
         pixels: new Array(50 * 50).fill(currentColour)
     };
 
@@ -27,17 +28,22 @@ function startEditor ()
     let heightInput = document.getElementById("height");
     let widthInput = document.getElementById("width");
     let spriteText = document.getElementById("sprite-text");
+    let colourInput = document.getElementById("colour-input");
 
     heightInput.value = sprite.height;
     widthInput.value = sprite.width;
 
     {
         let i = 0;
-        colourPicker.innerHTML = sprite.palette.map(x => `<span class="colour" style="background-color: ${x}" onclick="window.handlers.onColourClick(${i++});"></span>`).join("\n");
+        colourPicker.innerHTML = sprite.palette.map(x => `<span class="colour" style="background-color: ${x}" onclick="window.handlers.onColourClick(this, ${i++});"></span>`).join("\n");
+        currentColourInput = colourPicker.firstChild;
+        colourInput.value = currentColourInput.style.backgroundColor;
     }
 
-    function onColourClick(colour) {
+    function onColourClick(input, colour) {
+            currentColourInput = input;
             currentColour = colour;
+            colourInput.value = currentColourInput.style.backgroundColor;
         };
 
     let bigContext;
@@ -141,6 +147,13 @@ function startEditor ()
         sprite = JSON.parse(spriteText.value);
         widthInput.value = sprite.width;
         heightInput.value = sprite.height;
+        createContextsAndImages();
+        redraw();
+    });
+
+    colourInput.addEventListener("change", e => {
+        sprite.palette[currentColour] = colourInput.value;
+        currentColourInput.style.backgroundColor = colourInput.value;
         createContextsAndImages();
         redraw();
     });
