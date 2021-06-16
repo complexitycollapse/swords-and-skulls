@@ -3,6 +3,8 @@ function startEditor ()
     let currentColour = 0;
     let backgroundColour = 1;
     let currentColourInput;
+    let mouseX = 0;
+    let mouseY = 0;
 
     let sprite = {
         height: 50,
@@ -29,6 +31,7 @@ function startEditor ()
     let widthInput = document.getElementById("width");
     let spriteText = document.getElementById("sprite-text");
     let colourInput = document.getElementById("colour-input");
+    let fillButton = document.getElementById("fill");
 
     heightInput.value = sprite.height;
     widthInput.value = sprite.width;
@@ -67,17 +70,17 @@ function startEditor ()
         mouseX = Math.floor(x / 20);
         mouseY = Math.floor(y / 20);
         if (bigCanvas.active) {
-            drawPixel();
+            if (fill.checked) doFill()
+            else drawPixel();
         }
     });
 
-    let mouseX = 0;
-    let mouseY = 0;
-
-    function drawPixel() {
-        sprite.pixels[mouseY * sprite.width + mouseX] = currentColour;
-        bigImage.setPixel(mouseX, mouseY, currentColour);
-        smallImage.setPixel(mouseX, mouseY, currentColour);
+    function drawPixel(x, y) {
+        x = x || mouseX;
+        y = y || mouseY;
+        sprite.pixels[y * sprite.width + x] = currentColour;
+        bigImage.setPixel(x, y, currentColour);
+        smallImage.setPixel(x, y, currentColour);
         redraw();
     }
 
@@ -91,7 +94,8 @@ function startEditor ()
 
     bigCanvas.addEventListener("mousedown", e => {
         bigCanvas.active = true;
-        drawPixel();
+        if (fill.checked) doFill()
+        else drawPixel();
       });
     bigCanvas.addEventListener("mouseup", e => {
         bigCanvas.active = false;
@@ -157,6 +161,23 @@ function startEditor ()
         createContextsAndImages();
         redraw();
     });
+
+    function doFill() {
+        let replaceColour = sprite.pixels[mouseY * sprite.width + mouseX];
+
+        function fill(x, y) {
+            if (sprite.pixels[y * sprite.width + x] == replaceColour) {
+                drawPixel(x, y);
+                if (x < sprite.width) fill(x+1, y);
+                if (x > 0) fill(x-1, y);
+                if (y < sprite.height) fill(x, y+1);
+                if (y > 0) fill(x, y-1);
+            }
+        }
+
+        fill(mouseX, mouseY);
+        redraw();
+    }
 
     window.handlers = { onColourClick: onColourClick };
     redraw();
