@@ -55,7 +55,7 @@ function gameFramework () {
         };
 
         // Create a texture that can be rendered to this context.
-        obj.createTexture = function ({ width, height, palette, pixels }) {
+        obj.createTexture = function ({ width, height, palette, pixels, invertX }) {
             var tex = {};
             pixels = pixels || new Array(width * height).fill(0);
             var canvas = document.createElement("canvas");
@@ -64,6 +64,10 @@ function gameFramework () {
             canvas.width = width *pS;
             var ctx = canvas.getContext("2d");
 
+            if (invertX) {
+                ctx.translate(width * pS, 0);
+                ctx.scale(-1, 1);
+            }
 
             tex.setPixel = function (x, y, c) {
                 pixels[x + width * y] = c;
@@ -113,14 +117,14 @@ function startGame ()
         };
         var monster = {};
 
-        var tex = renderCtx.createTexture({ width: 50, height: 50, palette: ["rgba(0, 0, 0, 0)","rgba(255, 0, 0, 255)"] });
+        var tex = renderCtx.createTexture({ width: 50, height: 50, palette: ["rgba(0, 0, 0, 0)","red","blue","green","black"], invertX: true });
         var x;
         var y;
         for (x = 0; x < 50; ++x) {
             for (y = 0; y < 50; ++y) {
                 let i = y % 2;
                 if ((x + i) % 2 === 0) {
-                    tex.setPixel(x, y, 1);
+                    tex.setPixel(x, y, y >= 25 ? (x < 25 ? 3 : 4) : (x < 25 ? 1 : 2));
                 }
             }
         }
