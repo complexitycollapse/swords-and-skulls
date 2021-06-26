@@ -1,14 +1,14 @@
 // The main loop of the game. Call to start.
 export function gameLoop (mouseEvents, gameLogic) {
-    var then;
-    var requestAnimationFrame = (function () {
-        var w = window;
+    let then;
+    let requestAnimationFrame = (function () {
+        let w = window;
         return w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
     }());
 
     function innerLoop() {
-        var now = Date.now();
-        var delta = (now - then) / 1000;
+        let now = Date.now();
+        let delta = (now - then) / 1000;
         gameLogic(now / 1000, delta, mouseEvents);
 
         then = now;
@@ -21,13 +21,13 @@ export function gameLoop (mouseEvents, gameLogic) {
 
 // Attach mouse event handlers
 export function initMouseEvents () {
-    var mouseEvents = {
+    let mouseEvents = {
         mouseX: 0,
         mouseY: 0
     };
 
     window.addEventListener("mousemove", function (e) {
-        var bounds = e.target.getBoundingClientRect();
+        let bounds = e.target.getBoundingClientRect();
         mouseEvents.mouseX = e.clientX - bounds.left;
         mouseEvents.mouseY = e.clientY - bounds.top;
     });
@@ -39,9 +39,9 @@ export function initMouseEvents () {
 export function renderer (canvas, pixelSize, width, height) {
     canvas.width = width * pixelSize;
     canvas.height = height * pixelSize;
-    var ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
 
-    var obj = {
+    let obj = {
         ctx: ctx,
         width: width,
         height: height,
@@ -54,13 +54,13 @@ export function renderer (canvas, pixelSize, width, height) {
 
     // Create a texture that can be rendered to this context.
     obj.createTexture = function ({ width, height, offsetX, offsetY, palette, pixels, invertX }) {
-        var tex = {};
+        let tex = {};
         pixels = pixels || new Array(width * height).fill(0);
-        var canvas = document.createElement("canvas");
+        let canvas = document.createElement("canvas");
         const pS = obj.pixelSize;
         canvas.height = height * pS;
         canvas.width = width *pS;
-        var ctx = canvas.getContext("2d");
+        let ctx = canvas.getContext("2d");
         let trueOffsetX = (offsetX ?? 0) * pixelSize;
         let trueOffsetY = (offsetY ?? 0) * pixelSize;
 
