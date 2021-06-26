@@ -7,8 +7,8 @@ let mouseX = 0;
 let mouseY = 0;
 
 let sprite = {
-    height: 50,
     width: 50,
+    height: 50,
     palette: [
         "rgba(0, 0, 0, 0)",
         "white",

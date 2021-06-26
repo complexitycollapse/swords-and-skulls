@@ -53,7 +53,7 @@ export function renderer (canvas, pixelSize, width, height) {
     };
 
     // Create a texture that can be rendered to this context.
-    obj.createTexture = function ({ width, height, palette, pixels, invertX }) {
+    obj.createTexture = function ({ width, height, offsetX, offsetY, palette, pixels, invertX }) {
         var tex = {};
         pixels = pixels || new Array(width * height).fill(0);
         var canvas = document.createElement("canvas");
@@ -61,6 +61,8 @@ export function renderer (canvas, pixelSize, width, height) {
         canvas.height = height * pS;
         canvas.width = width *pS;
         var ctx = canvas.getContext("2d");
+        let trueOffsetX = (offsetX ?? 0) * pixelSize;
+        let trueOffsetY = (offsetY ?? 0) * pixelSize;
 
         if (invertX) {
             ctx.translate(width * pS, 0);
@@ -87,7 +89,7 @@ export function renderer (canvas, pixelSize, width, height) {
         }
 
         tex.draw = function (x, y) {
-            obj.drawLayer(canvas, x, y);
+            obj.drawLayer(canvas, x - trueOffsetX, y - trueOffsetY);
         };
 
         return tex;
