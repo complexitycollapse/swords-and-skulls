@@ -1,9 +1,9 @@
 import * as engine from "./engine.mjs";
 import * as sprites from "./sprites.mjs";
 
-function moveHero(hero, mouseEvents, delta) {
-    let dx = mouseEvents.mouseX - hero.x;
-    let dy = mouseEvents.mouseY - hero.y;
+function moveHero(hero, { mouseX, mouseY }, delta) {
+    let dx = mouseX - hero.x;
+    let dy = mouseY - hero.y;
     let move = hero.speed * delta;
     let h = Math.sqrt(dx*dx+dy*dy);
     if (h > 2)
@@ -15,6 +15,13 @@ function moveHero(hero, mouseEvents, delta) {
             hero.y += scale * dy;
         }
     }
+}
+
+function clampMouse({ mouseX, mouseY }, minX, minY, maxX, maxY) {
+    return  {
+        mouseX: Math.min(Math.max(minX, mouseX), maxX),
+        mouseY: Math.min(Math.max(minY, mouseY), maxY)
+    };
 }
 
 function gameLogic (renderCtx) {
@@ -29,7 +36,8 @@ function gameLogic (renderCtx) {
     return function (time, delta, mouseEvents) {
         renderCtx.fill("white");
         let spriteChoice = Math.round(time * 2) % 2;
-        moveHero(hero, mouseEvents, delta);
+        let clampedMouse = clampMouse(mouseEvents, 0, 0, canvas.width, canvas.height);
+        moveHero(hero, clampedMouse, delta);
         hero.frames[spriteChoice].draw(hero.x, hero.y);
     };
 };
