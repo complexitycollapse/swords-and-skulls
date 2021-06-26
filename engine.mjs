@@ -9,7 +9,7 @@ export function gameLoop (mouseEvents, gameLogic) {
     function innerLoop() {
         var now = Date.now();
         var delta = (now - then) / 1000;
-        gameLogic(delta, mouseEvents);
+        gameLogic(now / 1000, delta, mouseEvents);
 
         then = now;
         requestAnimationFrame(innerLoop);
