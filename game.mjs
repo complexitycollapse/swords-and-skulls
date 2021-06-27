@@ -25,13 +25,13 @@ function clampMouse({ mouseX, mouseY }, minX, minY, maxX, maxY) {
 }
 
 function gameLogic (renderCtx) {
-    var hero = {
+    let hero = {
         speed: 256,
         x: 50,
         y: 50,
         frames: [sprites.player1, sprites.player2].map(x => renderContext.createTexture(x))
     };
-    var monster = {};
+    let monster = {};
 
     return function (time, delta, mouseEvents) {
         renderCtx.fill("white");

@@ -57,14 +57,15 @@ function createContextsAndImages() {
     smallContext = engine.renderer(smallCanvas, 5, sprite.width, sprite.height);
     bigImage = bigContext.createTexture(sprite);
     smallImage = smallContext.createTexture(sprite);
+    redraw();
 }
 
 createContextsAndImages();
 
 bigCanvas.addEventListener("mousemove", e => {
-    var rect = bigCanvas.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    var y = e.clientY - rect.top;
+    let rect = bigCanvas.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
     mouseX = Math.floor(x / 20);
     mouseY = Math.floor(y / 20);
     if (bigCanvas.active) {
@@ -125,7 +126,6 @@ heightInput.addEventListener("change", e => {
     sprite.height = newHeight;
 
     createContextsAndImages();
-    redraw();
 });
 
 widthInput.addEventListener("change", e => {
@@ -142,7 +142,6 @@ widthInput.addEventListener("change", e => {
     sprite.width = newWidth;
 
     createContextsAndImages();
-    redraw();
 });
 
 spriteText.addEventListener("change", e => {
@@ -150,14 +149,33 @@ spriteText.addEventListener("change", e => {
     widthInput.value = sprite.width;
     heightInput.value = sprite.height;
     createContextsAndImages();
-    redraw();
 });
 
-colourInput.addEventListener("change", e => {
+colourInput.addEventListener("change", () => {
     sprite.palette[currentColour] = colourInput.value;
     currentColourInput.style.backgroundColor = colourInput.value;
     createContextsAndImages();
     redraw();
+});
+
+document.getElementById("Up").addEventListener("click", () => {
+    sprite.pixels = sprite.pixels.slice(sprite.width).concat(new Array(sprite.width).fill(0));
+    createContextsAndImages();
+});
+
+document.getElementById("Down").addEventListener("click", () => {
+    sprite.pixels = new Array(sprite.width).fill(0).concat(sprite.pixels.slice(0, sprite.width * -1));
+    createContextsAndImages();
+});
+
+document.getElementById("Left").addEventListener("click", () => {
+    sprite.pixels = sprite.pixels.map((_, i) => ((i+1) % sprite.width) === 0 ? 0 : sprite.pixels[i+1]);
+    createContextsAndImages();
+});
+
+document.getElementById("Right").addEventListener("click", () => {
+    sprite.pixels = sprite.pixels.map((_, i) => (i % sprite.width) === 0 ? 0 : sprite.pixels[i-1]);
+    createContextsAndImages();
 });
 
 function doFill() {
