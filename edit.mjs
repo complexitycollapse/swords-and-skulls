@@ -34,12 +34,15 @@ let fillButton = document.getElementById("fill");
 heightInput.value = sprite.height;
 widthInput.value = sprite.width;
 
+function buildColourPicker()
 {
     let i = 0;
     colourPicker.innerHTML = sprite.palette.map(x => `<span class="colour" style="background-color: ${x}" onclick="window.handlers.onColourClick(this, ${i++});"></span>`).join("\n");
     currentColourInput = colourPicker.firstChild;
     colourInput.value = currentColourInput.style.backgroundColor;
 }
+
+buildColourPicker();
 
 function onColourClick(input, colour) {
         currentColourInput = input;
@@ -96,6 +99,7 @@ bigCanvas.addEventListener("mousedown", e => {
     if (fill.checked) doFill()
     else drawPixel();
     });
+
 bigCanvas.addEventListener("mouseup", e => {
     bigCanvas.active = false;
     });
@@ -148,6 +152,7 @@ spriteText.addEventListener("change", e => {
     sprite = JSON.parse(spriteText.value);
     widthInput.value = sprite.width;
     heightInput.value = sprite.height;
+    buildColourPicker();
     createContextsAndImages();
 });
 
@@ -155,7 +160,6 @@ colourInput.addEventListener("change", () => {
     sprite.palette[currentColour] = colourInput.value;
     currentColourInput.style.backgroundColor = colourInput.value;
     createContextsAndImages();
-    redraw();
 });
 
 document.getElementById("Up").addEventListener("click", () => {
