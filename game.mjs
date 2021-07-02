@@ -29,7 +29,8 @@ function gameLogic (renderCtx) {
         speed: 256,
         x: 50,
         y: 50,
-        frames: [sprites.player1, sprites.player2].map(x => renderContext.createTexture(x))
+        frames: [sprites.playerLegs1, sprites.playerLegs2].map(x => renderContext.createTexture(x)),
+        topHalf: renderContext.createTexture(sprites.playerTop)
     };
     let monster = {};
 
@@ -38,6 +39,7 @@ function gameLogic (renderCtx) {
         let spriteChoice = Math.round(time * 2) % 2;
         let clampedMouse = clampMouse(mouseEvents, 0, 0, canvas.width, canvas.height);
         moveHero(hero, clampedMouse, delta);
+        hero.topHalf.draw(hero.x, hero.y);
         hero.frames[spriteChoice].draw(hero.x, hero.y);
     };
 };
