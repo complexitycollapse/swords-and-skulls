@@ -1,22 +1,6 @@
 import * as engine from "./engine.mjs";
 import * as sprites from "./sprites.mjs";
 
-function moveHero(hero, { mouseX, mouseY }, delta) {
-    let dx = mouseX - hero.x;
-    let dy = mouseY - hero.y;
-    let move = hero.speed * delta;
-    let h = Math.sqrt(dx*dx+dy*dy);
-    if (h > 2)
-    {
-        let scale = move / h;
-        if (!isNaN(scale))
-        {
-            hero.x += scale * dx;
-            hero.y += scale * dy;
-        }
-    }
-}
-
 function clampMouse({ mouseX, mouseY }, minX, minY, maxX, maxY) {
     return  {
         mouseX: Math.min(Math.max(minX, mouseX), maxX),
@@ -24,23 +8,50 @@ function clampMouse({ mouseX, mouseY }, minX, minY, maxX, maxY) {
     };
 }
 
-function gameLogic (renderCtx) {
+function makeHero() {
     let hero = {
         speed: 256,
         x: 50,
         y: 50,
         frames: [sprites.playerLegs1, sprites.playerLegs2].map(x => renderContext.createTexture(x)),
-        topHalf: renderContext.createTexture(sprites.playerTop)
+        topHalf: [sprites.playerTop, sprites.playerStriking].map(x => renderContext.createTexture(x)),
+        strikeTime: 0
     };
+
+    hero.draw = function(time) {
+        hero.topHalf[0].draw(hero.x, hero.y);
+        let legSpriteChoice = Math.round(time * 2) % 2;
+        hero.frames[legSpriteChoice].draw(hero.x, hero.y);
+    }
+
+    hero.moveHero = function ({ mouseX, mouseY }, delta) {
+        let dx = mouseX - hero.x;
+        let dy = mouseY - hero.y;
+        let move = hero.speed * delta;
+        let h = Math.sqrt(dx*dx+dy*dy);
+        if (h > 2)
+        {
+            let scale = move / h;
+            if (!isNaN(scale))
+            {
+                hero.x += scale * dx;
+                hero.y += scale * dy;
+            }
+        }
+    }
+
+    return hero;
+}
+
+function gameLogic (renderCtx) {
+    let hero = makeHero();
     let monster = {};
 
     return function (time, delta, mouseEvents) {
         renderCtx.fill("white");
-        let spriteChoice = Math.round(time * 2) % 2;
         let clampedMouse = clampMouse(mouseEvents, 0, 0, canvas.width, canvas.height);
-        moveHero(hero, clampedMouse, delta);
-        hero.topHalf.draw(hero.x, hero.y);
-        hero.frames[spriteChoice].draw(hero.x, hero.y);
+        hero.moveHero(clampedMouse, delta);
+        hero.draw(time);
     };
 };
 
