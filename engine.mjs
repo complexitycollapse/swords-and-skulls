@@ -12,6 +12,7 @@ export function gameLoop (mouseEvents, gameLogic) {
         gameLogic(now / 1000, delta, mouseEvents);
 
         then = now;
+        mouseEvents.nextFrame();
         requestAnimationFrame(innerLoop);
     }
     then = Date.now();
@@ -20,10 +21,11 @@ export function gameLoop (mouseEvents, gameLogic) {
 };
 
 // Attach mouse event handlers
-export function initMouseEvents () {
+export function initMouseEvents (canvas) {
     let mouseEvents = {
         mouseX: 0,
-        mouseY: 0
+        mouseY: 0,
+        clicked: false
     };
 
     window.addEventListener("mousemove", function (e) {
@@ -31,6 +33,14 @@ export function initMouseEvents () {
         mouseEvents.mouseX = e.clientX - bounds.left;
         mouseEvents.mouseY = e.clientY - bounds.top;
     });
+
+    canvas.addEventListener("click", () => {
+        mouseEvents.clicked = true;
+    });
+
+    mouseEvents.nextFrame = () => {
+        mouseEvents.clicked = false;
+    };
 
     return mouseEvents;
 };

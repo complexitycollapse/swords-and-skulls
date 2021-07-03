@@ -1,10 +1,11 @@
 import * as engine from "./engine.mjs";
 import * as sprites from "./sprites.mjs";
 
-function clampMouse({ mouseX, mouseY }, minX, minY, maxX, maxY) {
+function clampMouse({ mouseX, mouseY, clicked }, minX, minY, maxX, maxY) {
     return  {
         mouseX: Math.min(Math.max(minX, mouseX), maxX),
-        mouseY: Math.min(Math.max(minY, mouseY), maxY)
+        mouseY: Math.min(Math.max(minY, mouseY), maxY),
+        clicked: clicked
     };
 }
 
@@ -19,12 +20,16 @@ function makeHero() {
     };
 
     hero.draw = function(time) {
-        hero.topHalf[0].draw(hero.x, hero.y);
+        hero.topHalf[hero.striking(time) ? 1 : 0].draw(hero.x, hero.y);
         let legSpriteChoice = Math.round(time * 2) % 2;
         hero.frames[legSpriteChoice].draw(hero.x, hero.y);
     }
 
-    hero.moveHero = function ({ mouseX, mouseY }, delta) {
+    hero.striking = (time) => {
+        return time - hero.strikeTime < 0.5;
+    };
+
+    hero.handleMouseInput = function ({ mouseX, mouseY, clicked }, time, delta) {
         let dx = mouseX - hero.x;
         let dy = mouseY - hero.y;
         let move = hero.speed * delta;
@@ -36,6 +41,12 @@ function makeHero() {
             {
                 hero.x += scale * dx;
                 hero.y += scale * dy;
+            }
+        }
+
+        if (clicked) {
+            if (!hero.striking(time)) {
+                hero.strikeTime = time;
             }
         }
     }
@@ -50,13 +61,13 @@ function gameLogic (renderCtx) {
     return function (time, delta, mouseEvents) {
         renderCtx.fill("white");
         let clampedMouse = clampMouse(mouseEvents, 0, 0, canvas.width, canvas.height);
-        hero.moveHero(clampedMouse, delta);
+        hero.handleMouseInput(clampedMouse, time, delta);
         hero.draw(time);
     };
 };
 
 let canvas = document.getElementById("game");
-let mouseEvents = engine.initMouseEvents();
+let mouseEvents = engine.initMouseEvents(canvas);
 let renderContext = engine.renderer(canvas, 5, 100, 100);
 let game = gameLogic(renderContext);
 engine.gameLoop(mouseEvents, game);
