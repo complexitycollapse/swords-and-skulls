@@ -1,11 +1,10 @@
 import * as engine from "./engine.mjs";
 import * as sprites from "./sprites.mjs";
 
-function clampMouse({ mouseX, mouseY, clicked }, minX, minY, maxX, maxY) {
-    return  {
-        mouseX: Math.min(Math.max(minX, mouseX), maxX),
-        mouseY: Math.min(Math.max(minY, mouseY), maxY),
-        clicked: clicked
+function coordinateClamper(minX, minY, maxX, maxY) {
+    return (obj) => {
+        obj.x = Math.min(Math.max(minX, obj.x), maxX);
+        obj.y = Math.min(Math.max(minY, obj.y), maxY);
     };
 }
 
@@ -24,7 +23,7 @@ function makeSword() {
     };
 }
 
-function makeHero() {
+function makeHero(clampCoordinates) {
     let hero = {
         speed: 256,
         x: 50,
@@ -49,7 +48,11 @@ function makeHero() {
         return time - hero.strikeTime < 0.5;
     };
 
-    hero.handleMouseInput = function ({ mouseX, mouseY, clicked }, time, delta) {
+    hero.handleMouseInput = function (mouseEvents, time, delta) {
+        let clampedMouse = {x: mouseEvents.mouseX, y: mouseEvents.mouseY};
+        clampCoordinates(clampedMouse);
+        let mouseX = clampedMouse.x;
+        let mouseY = clampedMouse.y;
         let dx = mouseX - hero.x;
         let dy = mouseY - hero.y;
         let move = hero.speed * delta;
@@ -64,11 +67,13 @@ function makeHero() {
             }
         }
 
+        clampCoordinates(hero);
+
         if (Math.abs(dx) > 2) {
             hero.facingLeft = dx < 0;
         }
 
-        if (clicked) {
+        if (mouseEvents.clicked) {
             if (!hero.striking(time)) {
                 hero.strikeTime = time;
             }
@@ -78,14 +83,13 @@ function makeHero() {
     return hero;
 }
 
-function gameLogic (renderCtx) {
-    let hero = makeHero();
+function gameLogic (renderCtx, canvasClamper) {
+    let hero = makeHero(canvasClamper);
     let monster = {};
 
     return function (time, delta, mouseEvents) {
         renderCtx.fill("white");
-        let clampedMouse = clampMouse(mouseEvents, 0, 0, canvas.width, canvas.height);
-        hero.handleMouseInput(clampedMouse, time, delta);
+        hero.handleMouseInput(mouseEvents, time, delta);
         hero.draw(time);
     };
 };
@@ -93,5 +97,6 @@ function gameLogic (renderCtx) {
 let canvas = document.getElementById("game");
 let mouseEvents = engine.initMouseEvents(canvas);
 let renderContext = engine.renderer(canvas, 5, 100, 100);
-let game = gameLogic(renderContext);
+let canvasClamper = coordinateClamper(0, 0, canvas.width, canvas.height);
+let game = gameLogic(renderContext, canvasClamper);
 engine.gameLoop(mouseEvents, game);
