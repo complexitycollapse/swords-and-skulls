@@ -9,6 +9,14 @@ function clampMouse({ mouseX, mouseY, clicked }, minX, minY, maxX, maxY) {
     };
 }
 
+function makeSword() {
+    let up = renderContext.createTexture(sprites.swordUp);
+    let left = renderContext.createTexture(sprites.swordLeft);
+    return {
+        draw: (x, y, striking) => { striking ? left.draw(x, y) : up.draw(x, y); }
+    };
+}
+
 function makeHero() {
     let hero = {
         speed: 256,
@@ -16,13 +24,16 @@ function makeHero() {
         y: 50,
         frames: [sprites.playerLegs1, sprites.playerLegs2].map(x => renderContext.createTexture(x)),
         topHalf: [sprites.playerTop, sprites.playerStriking].map(x => renderContext.createTexture(x)),
-        strikeTime: 0
+        strikeTime: 0,
+        sword: makeSword()
     };
 
     hero.draw = function(time) {
-        hero.topHalf[hero.striking(time) ? 1 : 0].draw(hero.x, hero.y);
+        let striking = hero.striking(time);
+        hero.topHalf[striking ? 1 : 0].draw(hero.x, hero.y);
         let legSpriteChoice = Math.round(time * 2) % 2;
         hero.frames[legSpriteChoice].draw(hero.x, hero.y);
+        hero.sword.draw(hero.x, hero.y, striking);
     }
 
     hero.striking = (time) => {

@@ -116,7 +116,7 @@ document.getElementById("clear").addEventListener("click", e => {
 });
 
 heightInput.addEventListener("change", e => {
-    let newHeight = heightInput.value;
+    let newHeight = heightInput.valueAsNumber;
     let newArr = new Array(sprite.width*newHeight).fill(0);
 
     for (let x = 0; x < sprite.width; ++x) {
@@ -133,7 +133,7 @@ heightInput.addEventListener("change", e => {
 });
 
 widthInput.addEventListener("change", e => {
-    let newWidth = widthInput.value;
+    let newWidth = widthInput.valueAsNumber;
     let newArr = new Array(sprite.height*newWidth).fill(0);
 
     for (let x = 0; x < Math.min(sprite.width, newWidth); ++x) {
