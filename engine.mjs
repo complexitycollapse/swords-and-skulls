@@ -29,7 +29,7 @@ export function initMouseEvents (canvas) {
     };
 
     window.addEventListener("mousemove", function (e) {
-        let bounds = e.target.getBoundingClientRect();
+        let bounds = canvas.getBoundingClientRect();
         mouseEvents.mouseX = e.clientX - bounds.left;
         mouseEvents.mouseY = e.clientY - bounds.top;
     });

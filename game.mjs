@@ -88,7 +88,7 @@ function gameLogic (renderCtx, canvasClamper) {
     let monster = {};
 
     return function (time, delta, mouseEvents) {
-        renderCtx.fill("white");
+        renderCtx.fill("lightgreen");
         hero.handleMouseInput(mouseEvents, time, delta);
         hero.draw(time);
     };
