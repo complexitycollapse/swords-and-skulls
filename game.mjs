@@ -10,10 +10,17 @@ function clampMouse({ mouseX, mouseY, clicked }, minX, minY, maxX, maxY) {
 }
 
 function makeSword() {
-    let up = renderContext.createTexture(sprites.swordUp);
+    let upLeft = renderContext.createTexture(sprites.swordUpLeft);
+    let upRight = renderContext.createTexture(sprites.swordUpRight);
     let left = renderContext.createTexture(sprites.swordLeft);
+    let right = renderContext.createTexture(sprites.swordRight);
     return {
-        draw: (x, y, striking) => { striking ? left.draw(x, y) : up.draw(x, y); }
+        draw: (x, y, striking, facingLeft) => {
+            let sprite = striking
+                ? (facingLeft ? left : right)
+                : (facingLeft ? upLeft : upRight);
+            sprite.draw(x, y);
+        }
     };
 }
 
@@ -23,17 +30,19 @@ function makeHero() {
         x: 50,
         y: 50,
         frames: [sprites.playerLegs1, sprites.playerLegs2].map(x => renderContext.createTexture(x)),
-        topHalf: [sprites.playerTop, sprites.playerStriking].map(x => renderContext.createTexture(x)),
+        topHalfLeft: [sprites.playerTopLeft, sprites.playerStrikingLeft].map(x => renderContext.createTexture(x)),
+        topHalfRight: [sprites.playerTopRight, sprites.playerStrikingRight].map(x => renderContext.createTexture(x)),
         strikeTime: 0,
-        sword: makeSword()
+        sword: makeSword(),
+        facingLeft: true
     };
 
     hero.draw = function(time) {
         let striking = hero.striking(time);
-        hero.topHalf[striking ? 1 : 0].draw(hero.x, hero.y);
+        (hero.facingLeft ? hero.topHalfLeft : hero.topHalfRight)[striking ? 1 : 0].draw(hero.x, hero.y);
         let legSpriteChoice = Math.round(time * 2) % 2;
         hero.frames[legSpriteChoice].draw(hero.x, hero.y);
-        hero.sword.draw(hero.x, hero.y, striking);
+        hero.sword.draw(hero.x, hero.y, striking, hero.facingLeft);
     }
 
     hero.striking = (time) => {
@@ -53,6 +62,10 @@ function makeHero() {
                 hero.x += scale * dx;
                 hero.y += scale * dy;
             }
+        }
+
+        if (Math.abs(dx) > 2) {
+            hero.facingLeft = dx < 0;
         }
 
         if (clicked) {
