@@ -85,10 +85,16 @@ function makeHero(clampCoordinates) {
 
 function gameLogic (renderCtx, canvasClamper) {
     let hero = makeHero(canvasClamper);
-    let monster = {};
+    let monster = {
+        speed: 60,
+        x: 400,
+        y: 300,
+        frames: [sprites.demon1, sprites.demon2].map(x => renderContext.createTexture(x))
+    };
 
     return function (time, delta, mouseEvents) {
         renderCtx.fill("lightgreen");
+        monster.frames[Math.round(time * 2) % 2].draw(monster.x, monster.y);
         hero.handleMouseInput(mouseEvents, time, delta);
         hero.draw(time);
     };
