@@ -34,7 +34,7 @@ export function initMouseEvents (canvas) {
         mouseEvents.mouseY = e.clientY - bounds.top;
     });
 
-    canvas.addEventListener("click", () => {
+    canvas.addEventListener("mousedown", () => {
         mouseEvents.clicked = true;
     });
 
